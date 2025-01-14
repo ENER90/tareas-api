@@ -1,0 +1,17 @@
+{
+  "name": "tareas-api",
+  "version": "1.0.0",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "scripts": {
+    "dev" : "nodemon app.js"
+  },
+  "author": "ener",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
