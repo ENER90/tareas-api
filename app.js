@@ -14,7 +14,7 @@ let personas = [
 ]
 
 //listar personas
-app.get(`/personas`, (req, res) => {
+app.get(`/personas`, (_req, res) => {
     res.json(personas);
 })
 
