@@ -3,10 +3,6 @@ const app = express()
 const port = 3000
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//     res.send({name: "cuco"});
-// })
-
 let personas = [
     {id: 1, name: "Leo", age: 34},
     {id: 2, name: "Ener", age: 34},
