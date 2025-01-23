@@ -7,12 +7,6 @@ const port = 3000
 const Persona = require('./models/persona');
 app.use(express.json());
 
-// let personas = [
-//     {id: 1, name: "Leo", age: 34},
-//     {id: 2, name: "Ener", age: 34},
-//     {id: 3, name: "Pedri", age: 35},
-// ]
-
 //listar personas
 app.get(`/personas`, async (_req, res) => {
     const personas = await Persona.find()
