@@ -1,11 +1,11 @@
-const express = require('express');
-const connectDB = require('../db');
+const express = require(`express`);
+const connectDB = require(`../db`);
 connectDB();
-const Persona = require('../models/persona');
+const Persona = require(`../models/persona`);
 const personaRouter = express.Router(); 
 
 //listar personas
-personaRouter.get(``, async (_req, res) => {
+personaRouter.get(`/`, async (_req, res) => {
     const personas = await Persona.find()
     res.json(personas);
 });
@@ -17,7 +17,7 @@ personaRouter.get(`/:id`, async (req, res) => {
 });
 
 //crear nueva persona
-personaRouter.post(``, async (req, res) => {
+personaRouter.post(`/`, async (req, res) => {
     const newPersona = new Persona(req.body);
     await newPersona.save();
     res.status(201).json(newPersona);
