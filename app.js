@@ -1,44 +1,12 @@
-require('dotenv').config();
+require(`dotenv`).config();
+const personaRouter = require(`./routes/persona`);
 const express = require('express');
-const connectDB = require('./db');
-connectDB();
 const app = express();
-const port = 3000
-const Persona = require('./models/persona');
+const port = process.env.PORT || 3000;
 app.use(express.json());
-
-//listar personas
-app.get(`/personas`, async (_req, res) => {
-    const personas = await Persona.find()
-    res.json(personas);
-});
-
-//buscar personas por id
-app.get(`/personas/:id`, async (req, res) => {
-    const persona = await Persona.findById(req.params.id);
-    res.json(persona);
-});
-
-//crear nueva persona
-app.post(`/personas`, async (req, res) => {
-    const newPersona = new Persona(req.body);
-    await newPersona.save();
-    res.status(201).json(newPersona);
-});
-
-//editar persona por id
-app.put(`/personas/:id`, async (req, res) => {
-    const updatePersona = await Persona.findByIdAndUpdate(req.params.id, req.body);
-    res.json(updatePersona);
-});
-
-//eliminar persona por id
-app.delete(`/personas/:id`, async (req, res) => {
-    await Persona.findByIdAndDelete(req.params.id);
-    res.send();
-});
+app.use(`/personas`, personaRouter);
 
 //inicializar servidor
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`App listening on port ${port}`)
 });
