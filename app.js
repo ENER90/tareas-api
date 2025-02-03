@@ -16,6 +16,12 @@ app.use((error, _req, res, next) => {
   next();
 });
 
+//Middleware global de manejo de errores
+app.use((err, _req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something wrong, try again'})
+});
+
 //inicializar servidor
 app.listen(port, () => {
   console.log(`App listening on port ${port}`)
