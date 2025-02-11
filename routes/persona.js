@@ -1,9 +1,9 @@
 const express = require('express');
-const connectDB = require('../db'); // Why does it happen if I already export connectDB in db.js?
-connectDB();
+const connectDB = require('../db'); 
 const Persona = require('../models/persona');
+const validation = require('../validations/persona');
+connectDB();
 const personaRouter = express.Router(); 
-const validation = require('../validations/persona')
 
 //listar personas
 personaRouter.get('/', async (_req, res) => {
