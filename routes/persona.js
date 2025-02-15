@@ -1,8 +1,6 @@
 const express = require('express');
-const connectDB = require('../db'); 
 const Persona = require('../models/persona');
 const validation = require('../validations/persona');
-connectDB();
 const personaRouter = express.Router(); 
 
 //listar personas
@@ -12,22 +10,22 @@ personaRouter.get('/', async (_req, res) => {
 
         res.json(personas);
     } catch (error) {
-    res.status(500).json({error: 'Error to try seve a person'});  
+        res.status(500).json({error: 'Error to try list persons'});  
     }
 });
 
 //buscar personas por id
-personaRouter.get('/:id', validation.validarID, async (req, res) => {
+personaRouter.get('/persona/:id', validation.validarID, async (req, res) => {
     try {
         const persona = await Persona.findById(req.params.id);
 
         if (!persona) {
-            return res.status(404).json({ error: 'Person not found'});
+            return res.status(404).json({error: 'Person not found'});
         }
 
         res.json(persona);
     } catch (error) {
-        res.status(500).json({ error: 'Eror trying to fetch person'})
+        res.status(500).json({error: 'Error trying to fetch person'});
     }
     
 });
@@ -49,11 +47,11 @@ personaRouter.put('/:id', validation.validarActualizacion, async (req, res) => {
         const updatePersona = await Persona.findByIdAndUpdate(req.params.id, req.body);
 
         if(!updatePersona) {
-            return res.status(404).json({ error: 'Person not found'})
+            return res.status(404).json({error: 'Person not found'});
         }
-        res.json({ message: "Person update successfully.", persona: updatePersona });
+        res.json({message: 'Person updated successfully', persona: updatePersona});
     }catch (error) {
-        res.status(500).json({ error: 'Error trying to edit person'});
+        res.status(500).json({error: 'Error trying to edit person'});
     }
 });
 
@@ -63,14 +61,14 @@ personaRouter.delete('/:id', validation.validarID, async (req, res) => {
         const deletePersona = await Persona.findByIdAndDelete(req.params.id);
 
         if(!deletePersona) {
-            return res.status(404).json({ error: 'Person not found'})
+            return res.status(404).json({error: 'Person not found'})
         }
 
-        res.json({ message: "Person delete successfully.", persona: deletePersona });
+        res.json({message: 'Person deleted successfully', persona: deletePersona });
         return;
 
     } catch (error) {
-        res.status(500).json({ error: 'Error trying to delete person'});
+        res.status(500).json({error: 'Error trying to delete person'});
     }
     
 });
