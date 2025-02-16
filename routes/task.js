@@ -10,7 +10,7 @@ taskRouter.get('/', async (_req, res) => {
 
         res.json(tasks);
     } catch (error) {
-        res.status(500).json({error: 'Error to try list tasks'});
+        res.status(500).json({error: 'Error trying to get the tasks list'});
     }
 });
 
