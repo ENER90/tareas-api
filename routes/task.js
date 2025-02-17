@@ -47,7 +47,7 @@ taskRouter.put("/:id", async (req, res) => {
     if (!updateTask) {
       return res.status(404).json({ error: "Task not found" });
     }
-    res.json({ message: "Task updated successfully" });
+    res.json({ message: "Task updated successfully", task: updateTask });
   } catch (error) {
     res.status(500).json({ error: "Error trying to edit task" });
   }
