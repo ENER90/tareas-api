@@ -9,7 +9,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ener9011
     volumes:
       - mongo-DB:/data/db
-      
+
 volumes:
   mongo-DB:
-  

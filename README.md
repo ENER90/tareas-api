@@ -3,6 +3,7 @@
 Este proyecto es una API para gestionar tareas y usuarios. Está desarrollada con Node.js, Express y MongoDB.
 
 ## Tabla de Contenido
+
 - [Requisitos Previos](#requisitos-previos)
 - [Instalación](#instalación)
 - [Uso](#uso)
@@ -10,6 +11,7 @@ Este proyecto es una API para gestionar tareas y usuarios. Está desarrollada co
 - [Licencia](#licencia)
 
 ## Requisitos Previos
+
 - Node.js v18+
 - MongoDB (local o MongoDB Atlas)
 - Docker (opcional)
@@ -20,4 +22,5 @@ Este proyecto es una API para gestionar tareas y usuarios. Está desarrollada co
    ```bash
    git clone https://github.com/tu-usuario/tareas-api.git
    cd tareas-api
-   
+
+   ```
