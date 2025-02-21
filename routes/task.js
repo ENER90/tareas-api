@@ -1,5 +1,6 @@
 const express = require("express");
 const Task = require("../models/task");
+const validation = require("../validations/task");
 const taskRouter = express.Router();
 
 //list Tasks
@@ -14,7 +15,7 @@ taskRouter.get("/", async (_req, res) => {
 });
 
 //find task by id
-taskRouter.get("/:id", async (req, res) => {
+taskRouter.get("/:id", validation.validateID, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
@@ -29,7 +30,7 @@ taskRouter.get("/:id", async (req, res) => {
 });
 
 //create new task
-taskRouter.post("/", async (req, res) => {
+taskRouter.post("/", validation.validateTask, async (req, res) => {
   try {
     const newTask = new Task(req.body);
     await newTask.save();
@@ -40,7 +41,7 @@ taskRouter.post("/", async (req, res) => {
 });
 
 //edit task by id
-taskRouter.put("/:id", async (req, res) => {
+taskRouter.put("/:id", validation.updateValidation, async (req, res) => {
   try {
     const updateTask = await Task.findByIdAndUpdate(req.params.id, req.body);
 
@@ -54,7 +55,7 @@ taskRouter.put("/:id", async (req, res) => {
 });
 
 //delete task by id
-taskRouter.delete("/:id", async (req, res) => {
+taskRouter.delete("/:id", validation.validateID, async (req, res) => {
   try {
     const deleteTask = await Task.findByIdAndUpdate(req.params.id, {
       $set: { deletedAt: Date.now() },
