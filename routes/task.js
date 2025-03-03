@@ -30,7 +30,7 @@ taskRouter.get("/:id", validation.validateID, async (req, res) => {
 });
 
 //create new task
-taskRouter.post("/", validation.validateTask, async (req, res) => {
+taskRouter.post("/", validation.postValidation, async (req, res) => {
   try {
     const newTask = new Task(req.body);
     await newTask.save();

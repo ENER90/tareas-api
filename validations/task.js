@@ -1,113 +1,112 @@
 const express = require("express");
+const mongoose = require("mongoose");
 
-//validation GET by ID
-function validateID(req, res, next) {
-  const { id } = req.params;
-
-  // Validate ID format on MongoDB
-  if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
-    return res.status(400).json({ error: "invalid ID format" });
+function validateID(id) {
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return "invalid ID format on MongoDB";
   }
-
-  next();
+  return null;
 }
 
-//POST validation
-function validateTask(req, res, next) {
-  const { title, description, status, asignedTo, dueDate } = req.body;
+function validateTitle(title) {
+  if (!title || typeof title !== "string" || title.trim().length === 0) {
+    return "The title cannot be empty and must be a string";
+  }
+  return null;
+}
 
-  //title validation
-  if (!title | (typeof title !== "string") || title.trim() === "") {
-    return res
-      .status(400)
-      .json({ error: "The title cannot be emty and must be a strng" });
-  }
-  //description validation
+function validateDescription(description) {
   if (description && typeof description !== "string") {
-    return res.status(400).json({ error: "The description must be a strng" });
+    return "The description must be a string";
   }
-  //status validation
+  return null;
+}
+
+function validateStatus(status) {
   const validStatus = ["To Do", "In Progress", "In Revision", "Done"];
   if (!validStatus.includes(status)) {
-    return res.status(400).json({
-      error: `Invalid status value, most be one of : ${validStatus.join(
-        ", "
-      )}.`,
-    });
+    return `Invalid status value, must be one of : ${validStatus.join(", ")}.`;
   }
-  //asignedTo validation
-  if (!asignedTo || !asignedTo.match(/^[0-9a-fA-F]{24}$/)) {
-    return res.status(400).json({ error: "Ivalid asignedTo ID format" });
+  return null;
+}
+
+function validateAssignedTo(assignedTo) {
+  if (!assignedTo || !mongoose.Types.ObjectId.isValid(assignedTo)) {
+    return "Invalid assignedTo ID format format on MongoDB";
   }
-  //dueDate validation
+  return null;
+}
+
+function validateDueDate(dueDate) {
   if (dueDate) {
     const parseDate = new Date(dueDate);
     if (isNaN(parseDate.getTime()) || parseDate < new Date()) {
-      return res
-        .status(400)
-        .json({ error: "the dueDate must be a valid future date." });
+      return "the dueDate must be a valid future date.";
     }
+  }
+  return null;
+}
+
+function postValidation(req, res, next) {
+  const { title, description, assignedTo, status, dueDate } = req.body;
+  const errors = [
+    validateTitle(title),
+    validateDescription(description),
+    validateStatus(status),
+    validateAssignedTo(assignedTo),
+    validateDueDate(dueDate),
+  ].filter((error) => error !== null);
+
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
   }
 
   next();
 }
 
-//PUT validatrion
 function updateValidation(req, res, next) {
-  const { title, description, status, asignedTo, dueDate } = req.body;
   const { id } = req.params;
+  const { title, description, assignedTo, status, dueDate } = req.body;
+  const taskData = { title, description, assignedTo, status, dueDate };
 
-  // Validate ID format on MongoDB
-  if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
-    return res.status(400).json({ error: "invalid ID format" });
+  const errorID = validateID(id);
+  if (errorID !== null) {
+    return res.status(400).json({ error: errorID });
   }
 
-  //title send validation
-  if (title !== undefined) {
-    if (typeof title !== "string" || title.trim() === "") {
-      return res
-        .status(400)
-        .json({ error: "The title cannot be emty and must be a strng" });
-    }
-  }
+  const errors = [];
 
-  //description send validation
-  if (description !== undefined) {
-    if (typeof description !== "string") {
-      return res.status(400).json({ error: "The description must be a strng" });
-    }
-  }
+  Object.entries(taskData).forEach(([key, value]) => {
+    if (value !== undefined) {
+      let error = null;
 
-  //status send validation
-  const validStatus = ["To Do", "In Progress", "In Revision", "Done"];
-  if (status !== undefined) {
-    if (!validStatus.includes(status)) {
-      return res.status(400).json({
-        error: `Invalid status value, most be one of : ${validStatus.join(
-          ", "
-        )}.`,
-      });
-    }
-  }
+      switch (key) {
+        case "title":
+          error = validateTitle(value);
+          break;
+        case "description":
+          error = validateDescription(value);
+          break;
+        case "status":
+          error = validateStatus(value);
+          break;
+        case "assignedTo":
+          error = validateAssignedTo(value);
+          break;
+        case "dueDate":
+          error = validateDueDate(value);
+          break;
+      }
 
-  //asignedTo send validation
-  if (asignedTo !== undefined) {
-    if (!asignedTo.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ error: "Ivalid asignedTo ID format" });
+      if (error) errors.push(error);
     }
-  }
+  });
 
-  //dueDate send validation
-  if (dueDate !== undefined) {
-    const parseDate = new Date(dueDate);
-    if (isNaN(parseDate.getTime()) || parseDate < new Date()) {
-      return res
-        .status(400)
-        .json({ error: "the dueDate must be a valid future date." });
-    }
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors });
   }
 
   next();
 }
 
-module.exports = { validateID, updateValidation, validateTask };
+module.exports = { validateID, postValidation, updateValidation };
