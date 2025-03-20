@@ -1,5 +1,5 @@
 require("dotenv").config();
-const personaRouter = require("./routes/persona");
+const personRouter = require("./routes/person");
 const taskRouter = require("./routes/task");
 const express = require("express");
 const connectDB = require("./db");
@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 //Middleware para gestionar Personas
-app.use("/personas", personaRouter);
+app.use("/people", personRouter);
 
 //Middleware para gestionar Tasks
 app.use("/tasks", taskRouter);
