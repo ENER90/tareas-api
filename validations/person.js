@@ -74,4 +74,14 @@ function updateValidation(req, res, next) {
   next();
 }
 
-module.exports = { validateID, updateValidation, postValidation };
+function idValidation(req, res, next) {
+  const { id } = req.params;
+  const errorID = validateID(id);
+  if (errorID !== null) {
+    return res.status(400).json({ error: errorID });
+  }
+
+  next();
+}
+
+module.exports = { idValidation, updateValidation, postValidation };

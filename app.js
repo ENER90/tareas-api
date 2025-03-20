@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 //Middleware para gestionar Personas
-app.use("/persons", personRouter);
+app.use("/people", personRouter);
 
 //Middleware para gestionar Tasks
 app.use("/tasks", taskRouter);

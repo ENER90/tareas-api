@@ -15,7 +15,7 @@ taskRouter.get("/", async (_req, res) => {
 });
 
 //find task by id
-taskRouter.get("/:id", validation.validateID, async (req, res) => {
+taskRouter.get("/:id", validation.idValidation, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
@@ -55,7 +55,7 @@ taskRouter.put("/:id", validation.updateValidation, async (req, res) => {
 });
 
 //delete task by id
-taskRouter.delete("/:id", validation.validateID, async (req, res) => {
+taskRouter.delete("/:id", validation.idValidation, async (req, res) => {
   try {
     const deleteTask = await Task.findByIdAndUpdate(req.params.id, {
       $set: { deletedAt: Date.now() },

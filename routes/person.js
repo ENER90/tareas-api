@@ -5,15 +5,15 @@ const personRouter = express.Router();
 
 personRouter.get("/", async (_req, res) => {
   try {
-    const persons = await Person.find();
+    const people = await Person.find();
 
-    res.json(persons);
+    res.json(people);
   } catch (error) {
-    res.status(500).json({ error: "Error to try list persons" });
+    res.status(500).json({ error: "Error to try list people" });
   }
 });
 
-personRouter.get("/:id", validation.validateID, async (req, res) => {
+personRouter.get("/:id", validation.idValidation, async (req, res) => {
   try {
     const person = await Person.findById(req.params.id);
 
@@ -56,7 +56,7 @@ personRouter.put("/:id", validation.updateValidation, async (req, res) => {
   }
 });
 
-personRouter.delete("/:id", validation.validateID, async (req, res) => {
+personRouter.delete("/:id", validation.idValidation, async (req, res) => {
   try {
     const deletePerson = await Person.findByIdAndDelete(req.params.id);
 
