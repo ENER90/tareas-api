@@ -8,13 +8,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
-//Middleware para gestionar Personas
+// Middleware to manage People
 app.use("/people", personRouter);
 
-//Middleware para gestionar Tasks
+// Middleware to manage Tasks
 app.use("/tasks", taskRouter);
 
-// Middleware para manejar errores de JSON malformado
+// Middleware to handle malformed JSON errors
 app.use((error, _req, res, next) => {
   if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
     return res.status(400).json({ error: "Invalid JSON" });
@@ -22,13 +22,13 @@ app.use((error, _req, res, next) => {
   next();
 });
 
-//Middleware global de manejo de errores
+// Global error handling middleware
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Something wrong, try again" });
 });
 
-//inicializar servidor
+// Initialize server
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });

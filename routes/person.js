@@ -9,7 +9,7 @@ personRouter.get("/", async (_req, res) => {
 
     res.json(people);
   } catch (error) {
-    res.status(500).json({ error: "Error to try list people" });
+    res.status(500).json({ error: "Error trying to list people" });
   }
 });
 
@@ -33,7 +33,7 @@ personRouter.post("/", validation.postValidation, async (req, res) => {
     await newPerson.save();
     res.status(201).json(newPerson);
   } catch (error) {
-    res.status(500).json({ error: "Error trying to seve a person" });
+    res.status(500).json({ error: "Error trying to save a person" });
   }
 });
 

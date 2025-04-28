@@ -8,12 +8,15 @@
     "mongoose": "^8.9.5"
   },
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "jest --detectOpenHandles"
   },
   "author": "ener",
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0"
   }
 }
