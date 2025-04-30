@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 function validateID(id) {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    return "invalid ID format on MongoDB";
+    return "Invalid ID format for MongoDB";
   }
   return null;
 }
@@ -25,14 +25,14 @@ function validateDescription(description) {
 function validateStatus(status) {
   const validStatus = ["To Do", "In Progress", "In Revision", "Done"];
   if (!validStatus.includes(status)) {
-    return `Invalid status value, must be one of : ${validStatus.join(", ")}.`;
+    return `Invalid status value, must be one of: ${validStatus.join(", ")}`;
   }
   return null;
 }
 
 function validateAssignedTo(assignedTo) {
   if (!assignedTo || !mongoose.Types.ObjectId.isValid(assignedTo)) {
-    return "Invalid assignedTo ID format format on MongoDB";
+    return "Invalid assignedTo ID format for MongoDB";
   }
   return null;
 }
@@ -41,7 +41,7 @@ function validateDueDate(dueDate) {
   if (dueDate) {
     const parseDate = new Date(dueDate);
     if (isNaN(parseDate.getTime()) || parseDate < new Date()) {
-      return "the dueDate must be a valid future date.";
+      return "The dueDate must be a valid future date";
     }
   }
   return null;

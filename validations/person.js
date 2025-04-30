@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 
 function validateID(id) {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    return "invalid ID format on MongoDB";
+    return "Invalid ID format for MongoDB";
   }
   return null;
 }
 
 function validateName(name) {
   if (!name || typeof name !== "string" || name.trim() === "") {
-    return "The name can`t be empty and must be a string.";
+    return "The name cannot be empty and must be a string";
   }
 
   return null;
@@ -18,7 +18,7 @@ function validateName(name) {
 
 function validateAge(age) {
   if (!age || isNaN(Number(age)) || Number(age) > 100 || Number(age) <= 0) {
-    return "The age cannot be empty and must be a valid number between 1 and 100.";
+    return "The age cannot be empty and must be a valid number between 1 and 100";
   }
 
   return null;
