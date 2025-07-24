@@ -28,7 +28,11 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: "Something wrong, try again" });
 });
 
-// Initialize server
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
-});
+// Initialize server only when running directly (not when imported for tests)
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+  });
+}
+
+module.exports = app;
