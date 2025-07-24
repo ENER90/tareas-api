@@ -1,6 +1,6 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
-const Person = require("../../models/person");
+const Person = require("../../src/models/person");
 const app = require("../../app");
 
 describe("Person Routes", () => {
