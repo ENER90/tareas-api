@@ -53,3 +53,39 @@ describe("Person Routes", () => {
     });
   });
 });
+
+describe("GET /people/:id", () => {
+  it("should return a person by ID", async () => {
+    const response = await request(app).get(`/people/${personId}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("name", "John Doe");
+    expect(response.body).toHaveProperty("age", 30);
+  });
+
+  it("should return 404 if person not found", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+    const response = await request(app).get(`/people/${fakeId}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "Person not found" });
+  });
+
+  it("should handle invalid ObjectId format", async () => {
+    const response = await request(app).get("/people/invalid-id");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid ID format" });
+  });
+
+  it("should handle database errors", async () => {
+    jest.spyOn(Person, "findById").mockImplementationOnce(() => {
+      throw new Error("Database error");
+    });
+
+    const response = await request(app).get(`/people/${personId}`);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Error trying to get person" });
+  });
+});
