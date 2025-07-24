@@ -43,7 +43,7 @@ Ideal for learning or integrating into a simple task management system.
 - **Backend**: Node.js + Express
 - **Database**: MongoDB / Mongoose
 - **Environment**: dotenv
-- **Testing**: (Mochajs, Supertest, Jest, etc. — según lo que uses)
+- **Testing**: Mocha, Supertest (adjust if you use others)
 - **Optional**: Docker for containerization
 
 ---
@@ -62,4 +62,3 @@ Ideal for learning or integrating into a simple task management system.
 git clone https://github.com/ENER90/tareas-api.git
 cd tareas-api
 npm install
-
