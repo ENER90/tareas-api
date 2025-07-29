@@ -277,4 +277,342 @@ describe("Task Routes", () => {
       expect(new Date(response.body.dueDate)).toBeInstanceOf(Date);
     });
   });
+
+  describe("GET /tasks", () => {
+    it("should return all tasks", async () => {
+      // Create multiple tasks
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
+
+      await Task.create([
+        {
+          title: "First task",
+          description: "First description",
+          status: "To Do",
+          assignedTo: personId,
+          dueDate: futureDate,
+        },
+        {
+          title: "Second task",
+          description: "Second description",
+          status: "In Progress",
+          assignedTo: personId,
+        },
+        {
+          title: "Third task",
+          status: "Done",
+          assignedTo: personId,
+        },
+      ]);
+
+      const response = await request(app).get("/tasks");
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(3);
+
+      // Check that all tasks are returned
+      const titles = response.body.map((task) => task.title);
+      expect(titles).toContain("First task");
+      expect(titles).toContain("Second task");
+      expect(titles).toContain("Third task");
+    });
+
+    it("should return empty array when no tasks exist", async () => {
+      const response = await request(app).get("/tasks");
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
+    });
+
+    it("should handle database errors", async () => {
+      jest.spyOn(Task, "find").mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      const response = await request(app).get("/tasks");
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: "Error trying to get the tasks list",
+      });
+    });
+  });
+
+  describe("GET /tasks/:id", () => {
+    let taskId;
+
+    beforeEach(async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 5);
+
+      const task = new Task({
+        title: "Test task for GET",
+        description: "Test description",
+        status: "In Progress",
+        assignedTo: personId,
+        dueDate: futureDate,
+      });
+      await task.save();
+      taskId = task._id;
+    });
+
+    it("should return a task by ID", async () => {
+      const response = await request(app).get(`/tasks/${taskId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("title", "Test task for GET");
+      expect(response.body).toHaveProperty("description", "Test description");
+      expect(response.body).toHaveProperty("status", "In Progress");
+      expect(response.body).toHaveProperty("assignedTo", personId.toString());
+      expect(response.body).toHaveProperty("dueDate");
+      expect(response.body).toHaveProperty("_id", taskId.toString());
+    });
+
+    it("should return 404 if task not found", async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const response = await request(app).get(`/tasks/${fakeId}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: "Task not found" });
+    });
+
+    it("should return 400 with invalid ObjectId format", async () => {
+      const response = await request(app).get("/tasks/invalid-id");
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: "Invalid ID format for MongoDB" });
+    });
+
+    it("should handle database errors", async () => {
+      jest.spyOn(Task, "findById").mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      const response = await request(app).get(`/tasks/${taskId}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Error trying to fetch task" });
+    });
+  });
+
+  describe("PUT /tasks/:id", () => {
+    let taskId;
+
+    beforeEach(async () => {
+      const task = new Task({
+        title: "Original task",
+        description: "Original description",
+        status: "To Do",
+        assignedTo: personId,
+      });
+      await task.save();
+      taskId = task._id;
+    });
+
+    it("should update a task with all valid data", async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 10);
+
+      const updateData = {
+        title: "Updated task title",
+        description: "Updated description",
+        status: "In Progress",
+        assignedTo: personId,
+        dueDate: futureDate.toISOString(),
+      };
+
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send(updateData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+      expect(response.body).toHaveProperty("task");
+      expect(response.body.task).toHaveProperty("_id", taskId.toString());
+    });
+
+    it("should update only title", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ title: "Only title updated" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+    });
+
+    it("should update only status", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ status: "Done" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+    });
+
+    it("should update only description", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ description: "Only description updated" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+    });
+
+    it("should update only dueDate", async () => {
+      const futureDate = new Date();
+      futureDate.setMonth(futureDate.getMonth() + 1);
+
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ dueDate: futureDate.toISOString() });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+    });
+
+    it("should return 404 when task not found", async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const response = await request(app)
+        .put(`/tasks/${fakeId}`)
+        .send({ title: "Updated title" });
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: "Task not found" });
+    });
+
+    it("should return 400 with invalid ID format", async () => {
+      const response = await request(app)
+        .put("/tasks/invalid-id")
+        .send({ title: "Updated title" });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: "Invalid ID format for MongoDB" });
+    });
+
+    it("should return 400 with invalid title", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ title: "" });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error).toContain(
+        "The title cannot be empty and must be a string"
+      );
+    });
+
+    it("should return 400 with invalid status", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ status: "Invalid Status" });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error).toContain(
+        "Invalid status value, must be one of: To Do, In Progress, In Revision, Done"
+      );
+    });
+
+    it("should return 400 with invalid assignedTo", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ assignedTo: "invalid-id" });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error).toContain(
+        "Invalid assignedTo ID format for MongoDB"
+      );
+    });
+
+    it("should return 400 with invalid description type", async () => {
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ description: 123 });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error).toContain("The description must be a string");
+    });
+
+    it("should return 400 with past dueDate", async () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 1);
+
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ dueDate: pastDate.toISOString() });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error).toContain(
+        "The dueDate must be a valid future date"
+      );
+    });
+
+    it("should return 400 with multiple validation errors", async () => {
+      const response = await request(app).put(`/tasks/${taskId}`).send({
+        title: "",
+        status: "Invalid Status",
+        assignedTo: "invalid-id",
+        description: 123,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error");
+      expect(Array.isArray(response.body.error)).toBe(true);
+      expect(response.body.error.length).toBeGreaterThan(1);
+    });
+
+    it("should handle database errors", async () => {
+      jest.spyOn(Task, "findByIdAndUpdate").mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      const response = await request(app)
+        .put(`/tasks/${taskId}`)
+        .send({ title: "Updated title" });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: "Error trying to edit task" });
+    });
+
+    it("should update task with valid future dueDate", async () => {
+      const futureDate = new Date();
+      futureDate.setYear(futureDate.getFullYear() + 1);
+
+      const response = await request(app).put(`/tasks/${taskId}`).send({
+        title: "Task with updated due date",
+        dueDate: futureDate.toISOString(),
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task updated successfully"
+      );
+    });
+  });
 });
