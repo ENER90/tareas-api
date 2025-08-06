@@ -615,4 +615,131 @@ describe("Task Routes", () => {
       );
     });
   });
+
+  describe("DELETE /tasks/:id", () => {
+    let taskId;
+
+    beforeEach(async () => {
+      const task = new Task({
+        title: "Task to be deleted",
+        description: "This task will be deleted",
+        status: "To Do",
+        assignedTo: personId,
+      });
+      await task.save();
+      taskId = task._id;
+    });
+
+    it("should delete a task by ID (soft delete)", async () => {
+      const response = await request(app).delete(`/tasks/${taskId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task deleted successfully"
+      );
+      expect(response.body).toHaveProperty("task");
+      expect(response.body.task).toHaveProperty("title", "Task to be deleted");
+      expect(response.body.task).toHaveProperty("_id", taskId.toString());
+
+      // Verify it was soft deleted (deletedAt field should be set)
+      const deletedTask = await Task.findById(taskId);
+      expect(deletedTask).toBeTruthy(); // Still exists in database
+      expect(deletedTask.deletedAt).toBeTruthy(); // But has deletedAt timestamp
+      expect(deletedTask.deletedAt).toBeInstanceOf(Date);
+    });
+
+    it("should return 404 when task not found", async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const response = await request(app).delete(`/tasks/${fakeId}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: "Task not found" });
+    });
+
+    it("should return 400 with invalid ID format", async () => {
+      const response = await request(app).delete("/tasks/invalid-id");
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: "Invalid ID format for MongoDB",
+      });
+    });
+
+    it("should handle database errors", async () => {
+      jest.spyOn(Task, "findByIdAndUpdate").mockImplementationOnce(() => {
+        throw new Error("Database error");
+      });
+
+      const response = await request(app).delete(`/tasks/${taskId}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: "Error trying to delete task",
+      });
+    });
+
+    it("should soft delete task with all its data intact", async () => {
+      // Create a task with all possible fields
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
+
+      const completeTask = new Task({
+        title: "Complete task for deletion",
+        description: "A complete task with all fields",
+        status: "In Progress",
+        assignedTo: personId,
+        dueDate: futureDate,
+      });
+      await completeTask.save();
+
+      const response = await request(app).delete(`/tasks/${completeTask._id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task deleted successfully"
+      );
+
+      // Verify the returned task has all original data
+      expect(response.body.task).toHaveProperty(
+        "title",
+        "Complete task for deletion"
+      );
+      expect(response.body.task).toHaveProperty(
+        "description",
+        "A complete task with all fields"
+      );
+      expect(response.body.task).toHaveProperty("status", "In Progress");
+      expect(response.body.task).toHaveProperty(
+        "assignedTo",
+        personId.toString()
+      );
+
+      // Verify it's soft deleted in database
+      const softDeletedTask = await Task.findById(completeTask._id);
+      expect(softDeletedTask.deletedAt).toBeTruthy();
+      expect(softDeletedTask.title).toBe("Complete task for deletion"); // Data preserved
+    });
+
+    it("should be able to delete an already updated task", async () => {
+      // First update the task
+      await Task.findByIdAndUpdate(taskId, {
+        title: "Updated title before deletion",
+        status: "Done",
+      });
+
+      const response = await request(app).delete(`/tasks/${taskId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Task deleted successfully"
+      );
+
+      // Verify the task is soft deleted
+      const deletedTask = await Task.findById(taskId);
+      expect(deletedTask.deletedAt).toBeTruthy();
+    });
+  });
 });
