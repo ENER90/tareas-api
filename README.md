@@ -180,8 +180,7 @@ This project includes a comprehensive testing suite with **68 tests** covering a
 # Run all tests
 npm test
 
-# Run tests with coverage
-npm test -- --coverage
+
 
 # Run specific test file
 npm test -- tests/routes/person.test.js
@@ -270,13 +269,15 @@ MONGO_DB_URL="mongodb://user:password@localhost:27017/tasksdb"
 {
   "start": "node app.js",
   "dev": "nodemon app.js",
-  "test": "jest --detectOpenHandles"
+  "test": "jest --detectOpenHandles",
+  "test:watch": "jest --detectOpenHandles --watch"
 }
 ```
 
 - `npm start`: Run in production mode
 - `npm run dev`: Run in development mode with auto-reload
 - `npm test`: Run test suite
+- `npm run test:watch`: Run tests in watch mode
 
 ---
 

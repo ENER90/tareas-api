@@ -12,7 +12,6 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "jest --detectOpenHandles",
-    "test:coverage": "jest --detectOpenHandles --coverage",
     "test:watch": "jest --detectOpenHandles --watch"
   },
   "author": "ener",
