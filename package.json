@@ -9,12 +9,15 @@
     "mongoose": "^8.9.5"
   },
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "test:coverage": "jest --detectOpenHandles --coverage",
+    "test:watch": "jest --detectOpenHandles --watch"
   },
   "author": "ener",
   "license": "MIT",
-  "description": "",
+  "description": "RESTful API to manage tasks and users, built with Node.js, Express, and MongoDB. Features complete CRUD operations, comprehensive testing, and Docker support.",
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
